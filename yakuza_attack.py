@@ -44,7 +44,10 @@ class YakuzaAttack:
         self.stats = GameStats(self)
         self.hero_sprites = pygame.sprite.Group()
         self.hero_sprites.add(self.hero)
+        # Collisions
+
         self.floor_collisions = pygame.sprite.groupcollide(self.hero_sprites, self.floors, False, False)
+        self.bullet_yakuza_collisions = None
         self.collisions2 = pygame.sprite.groupcollide(self.hero_sprites, self.yakuzas, False, False)
         self.normal_jump_distance = 0
 
@@ -295,7 +298,7 @@ class YakuzaAttack:
 
     def _fire_bullet(self):
         """Create a new bullet and add it to the bullets group"""
-        if len(self.bullets)<1:
+        if len(self.bullets) < 1:
             self.settings.number_of_bullets -= 1
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
@@ -313,18 +316,17 @@ class YakuzaAttack:
     def _check_bullet_yakuza_collision(self):
         """Check for any bullets that have hit aliens"""
         # If so, get rid of the bullet and the alien
-        collisions1 = pygame.sprite.spritecollideany(
-            self.yakuza1, self.bullets)
-
-        if collisions1 and self.settings.yakuza1_health > 0:
-            self.settings.yakuza1_health -= 1
-            print(collisions1)
-            print(self.settings.yakuza1_health)
-        elif self.settings.yakuza1_health == 0:
-            self.yakuzas.remove(self.yakuza1)
+        for yakuza in self.yakuzas:
+            self.bullet_yakuza_collisions = pygame.sprite.spritecollideany(yakuza, self.bullets)
+            if self.bullet_yakuza_collisions and yakuza.health > 0:
+                yakuza.health -= 1
+                print(yakuza.health)
+            elif yakuza.health == 0:
+                self.yakuzas.remove(yakuza)
                 #self.sb.prep_score()
             #self.sb.check_highscore()
             #self.sb.prep_highscore()
+
 
     def _draw_floors(self):
         for floor in self.floors:

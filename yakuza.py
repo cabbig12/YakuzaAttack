@@ -16,6 +16,7 @@ class Yakuza(Sprite):
         self.image = pygame.image.load('images/yakuza.PNG')
         self.rect = self.image.get_rect()
         self.x = self.rect.x
+        self.health = 4
 
         # Yakuza movement flag
         self.moving_right = 1

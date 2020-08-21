@@ -25,9 +25,6 @@ class Settings:
 
         # Yakuza settings
         self.yakuza_speed = 1
-        self.yakuza1_health = 4
-        self.yakuza2_health = 4
-        self.yakuza3_health = 4
         self.yakuza_distance = 300
         self.yakuza_left_distance = -150
         self.yakuza_points = 5
