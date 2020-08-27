@@ -11,6 +11,7 @@ from yakuza import Yakuza
 from door import Door
 from scoreboard import Scoreboard
 from bullet import Bullet
+from game_level_1 import GameLevel1
 
 class YakuzaAttack:
     """Overall class to manage game assets and behavior"""
@@ -27,106 +28,34 @@ class YakuzaAttack:
         self.sb = Scoreboard(self)
         pygame.display.set_caption("Yakuza Attack")
 
-        # Creating the level1 floors
-        self._build_floors()
+        self._initalize_level()
 
-        # instantiate and position fire
-        self._build_fires()
+    def _initalize_level(self):
+        if self.game_stats.level == 1:
+            self.game_level = GameLevel1(self)
+            self.game_level.initialize_level_settings()
+        elif self.game_stats.level == 2:
+            self.game_level = GameLevel2(self)
+            self.game_level.initialize_level_settings()
 
-        # Creating the yakuza's
-        self._build_yakuzas()
-
-        # Creating the door
-        self._build_door()
-
-        self.bullets = pygame.sprite.Group()
-        self.hero = Hero(self)
-        self.stats = GameStats(self)
-        self.hero_sprites = pygame.sprite.Group()
-        self.hero_sprites.add(self.hero)
-        # Collisions
-
-        self.floor_collisions = pygame.sprite.groupcollide(self.hero_sprites, self.floors, False, False)
-        self.bullet_yakuza_collisions = None
-        self.collisions2 = pygame.sprite.groupcollide(self.hero_sprites, self.yakuzas, False, False)
-        self.normal_jump_distance = 0
-
-    def _build_door(self):
-        """Position and build the level door"""
-        self.door = Door(self)
-        self.door.rect.y = 196
-        self.door.rect.x = -400
-
-    def _build_yakuzas(self):
-        """Method to create and position yakuzas"""
-        self.yakuzas = pygame.sprite.Group()
-        self.yakuza1 = Yakuza(self)
-        self.yakuza1.rect.y = self.fire2.rect.y - 2
-        self.yakuza1.x = 600
-        self.yakuzas.add(self.yakuza1)
-
-        self.yakuza2 = Yakuza(self)
-        self.yakuza2.rect.y = self.fire4.rect.y - 5
-        self.yakuza2.x = 600
-        self.yakuzas.add(self.yakuza2)
-
-        self.yakuza3 = Yakuza(self)
-        self.yakuza3.rect.y = self.fire3.rect.y - 5
-        self.yakuza3.x = 410
-        self.yakuzas.add(self.yakuza3)
-
-        self.yakuzas_ghost = self.yakuzas.copy()
-
-    def _build_floors(self):
-        """Method to create and position floors"""
-        # Creating the level1 floors
-        self.floors = pygame.sprite.Group()
-        self.floor_widths = [1000, 120, 250, 870, 1120, 1200]
-        self.floor0 = Level1(self, self.floor_widths[0], 0, 135)
-        self.floors.add(self.floor0)
-        self.floor1 = Level1(self, self.floor_widths[1], 1080, 135)
-        self.floors.add(self.floor1)
-        self.floor2 = Level1(self, self.floor_widths[2], 0, 285)
-        self.floors.add(self.floor2)
-        self.floor3 = Level1(self, self.floor_widths[3], 330, 285)
-        self.floors.add(self.floor3)
-        self.floor4 = Level1(self, self.floor_widths[4], 0, 435)
-        self.floors.add(self.floor4)
-        self.floor5 = Level1(self, self.floor_widths[5], 0, 585)
-        self.floors.add(self.floor5)
-    def _build_fires(self):
-        """Method to create and position fires"""
-        # instantiate and position fire
-        self.fires = pygame.sprite.Group()
-        self.fire1 = Fire(self)
-        self.fire1.rect.y = 85 + 18
-        self.fire1.x = 500
-        self.fire1.rect.x = self.fire1.x
-        self.fires.add(self.fire1)
-
-        self.fire2 = Fire(self)
-        self.fire2.rect.y = 230 + 23
-        self.fire2.x = 150
-        self.fire2.rect.x = self.fire2.x
-        self.fires.add(self.fire2)
-
-        self.fire3 = Fire(self)
-        self.fire3.rect.y = 385 + 18
-        self.fire3.x = 770
-        self.fire3.rect.x = self.fire3.x
-        self.fires.add(self.fire3)
-
-        self.fire4 = Fire(self)
-        self.fire4.rect.y = 535 + 18
-        self.fire4.x = 400
-        self.fire4.rect.x = self.fire4.x
-        self.fires.add(self.fire4)
+        self.hero = self.game_level.hero
+        self.hero_sprites = self.game_level.hero_sprites
+        self.floors = self.game_level.floors
+        self.fires = self.game_level.fires
+        self.yakuzas = self.game_level.yakuzas
+        self.bullets = self.game_level.bullets
+        self.door = self.game_level.door
+        self.doors = self.game_level.doors
+        self.normal_jump_distance = self.game_level.normal_jump_distance
+        self.floor_collisions = self.game_level.floor_collisions
+        self.hero = self.game_level.hero
+        self.hero_door_collision = pygame.sprite.groupcollide(self.hero_sprites, self.doors, False, False)
 
     def run_game(self):
         """Start the main loop for the game"""
         while True:
             self._check_events()
-            if self.stats.game_active:
+            if self.game_stats.game_active:
                 self._update_hero()
                 self._update_fire()
                 self._update_yakuza()
@@ -295,6 +224,7 @@ class YakuzaAttack:
         self._hero_jump()
         self._check_hero_fire_collisions()
         self.hero.update()
+        self._end_level()
 
     def _fire_bullet(self):
         """Create a new bullet and add it to the bullets group"""
@@ -320,7 +250,6 @@ class YakuzaAttack:
             self.bullet_yakuza_collisions = pygame.sprite.spritecollideany(yakuza, self.bullets)
             if self.bullet_yakuza_collisions and yakuza.health > 0:
                 yakuza.health -= 1
-                print(yakuza.health)
             elif yakuza.health == 0:
                 self.yakuzas.remove(yakuza)
                 #self.sb.prep_score()
@@ -338,6 +267,16 @@ class YakuzaAttack:
         self.sb.prep_level()
         self.sb.show_health()
         self.sb.show_level()
+
+    def _end_level(self):
+        """Method for user to end the level"""
+        if self.hero_door_collision:
+            self.settings.level += 1
+            self.hero_sprites.empty()
+            self.floors.empty()
+            self.fires.empty()
+            self.yakuzas.empty()
+            print(self.game_stats.level)
 
     def _update_screen(self):
         # redraw the screen during each pass through the loop.

@@ -1,6 +1,7 @@
 import pygame
+from pygame.sprite import Sprite
 
-class Door:
+class Door(Sprite):
     """A class to control the behaviour and assets of the door"""
 
     def __init__(self, ya_game):
