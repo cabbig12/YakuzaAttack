@@ -12,6 +12,7 @@ from door import Door
 from scoreboard import Scoreboard
 from bullet import Bullet
 from game_level_1 import GameLevel1
+from game_level_2 import GameLevel2
 
 class YakuzaAttack:
     """Overall class to manage game assets and behavior"""
@@ -60,6 +61,7 @@ class YakuzaAttack:
                 self._update_fire()
                 self._update_yakuza()
                 self._update_bullets()
+                self._end_level()
             self._update_screen()
 
     def _check_events(self):
@@ -247,15 +249,11 @@ class YakuzaAttack:
         """Check for any bullets that have hit aliens"""
         # If so, get rid of the bullet and the alien
         for yakuza in self.yakuzas:
-            self.bullet_yakuza_collisions = pygame.sprite.spritecollideany(yakuza, self.bullets)
-            if self.bullet_yakuza_collisions and yakuza.health > 0:
+            self.bullet_yakuza_collisions = pygame.sprite.spritecollide(yakuza, self.bullets, True)
+            for i in self.bullet_yakuza_collisions:
                 yakuza.health -= 1
-            elif yakuza.health == 0:
-                self.yakuzas.remove(yakuza)
-                #self.sb.prep_score()
-            #self.sb.check_highscore()
-            #self.sb.prep_highscore()
-
+                if yakuza.health == 0:
+                    self.yakuzas.remove(yakuza)
 
     def _draw_floors(self):
         for floor in self.floors:
@@ -293,6 +291,7 @@ class YakuzaAttack:
 
         # Make the most recently drawn screen visible.
         pygame.display.flip()
+
 if __name__ == '__main__':
     # Make a game instance, and run the game.
     ya = YakuzaAttack()

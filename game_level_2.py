@@ -56,6 +56,9 @@ class GameLevel2:
         self.door.rect.y = 196
         self.door.rect.x = -100
 
+        self.doors = pygame.sprite.Group()
+        self.doors.add(self.door)
+
     def _build_yakuzas(self):
         """Method to create and position yakuzas"""
         self.yakuzas = pygame.sprite.Group()
