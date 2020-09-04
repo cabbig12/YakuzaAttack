@@ -13,7 +13,7 @@ class Door(Sprite):
         self.game_stats = ya_game.game_stats
 
         # Load the door's image and get the rect
-        self.image = pygame.image.load('images/door.PNG')
+        self.image = pygame.image.load('images/door.png')
         self.rect = self.image.get_rect()
         self.x = self.rect.x
 
